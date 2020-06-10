@@ -1,8 +1,17 @@
 #ifndef OPENVSLAM_SYSTEM_H
 #define OPENVSLAM_SYSTEM_H
 
-#include "openvslam/type.h"
+#include "openvslam/camera/base.h"
+#include "openvslam/config.h"
 #include "openvslam/data/bow_vocabulary.h"
+#include "openvslam/data/camera_database.h"
+#include "openvslam/data/map_database.h"
+#include "openvslam/global_optimization_module.h"
+#include "openvslam/mapping_module.h"
+#include "openvslam/publish//frame_publisher.h"
+#include "openvslam/publish/map_publisher.h"
+#include "openvslam/tracking_module.h"
+#include "openvslam/type.h"
 
 #include <string>
 #include <thread>
@@ -12,26 +21,6 @@
 #include <opencv2/core/core.hpp>
 
 namespace openvslam {
-
-class config;
-class tracking_module;
-class mapping_module;
-class global_optimization_module;
-
-namespace camera {
-class base;
-} // namespace camera
-
-namespace data {
-class camera_database;
-class map_database;
-class bow_database;
-} // namespace data
-
-namespace publish {
-class map_publisher;
-class frame_publisher;
-} // namespace publish
 
 class system {
 public:
