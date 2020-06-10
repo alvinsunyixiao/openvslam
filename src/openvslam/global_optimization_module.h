@@ -2,7 +2,10 @@
 #define OPENVSLAM_GLOBAL_OPTIMIZATION_MODULE_H
 
 #include "openvslam/type.h"
+#include "openvslam/data/bow_database.h"
 #include "openvslam/data/bow_vocabulary.h"
+#include "openvslam/data/keyframe.h"
+#include "openvslam/data/map_database.h"
 #include "openvslam/module/type.h"
 #include "openvslam/module/loop_detector.h"
 #include "openvslam/module/loop_bundle_adjuster.h"
@@ -17,12 +20,6 @@ namespace openvslam {
 
 class tracking_module;
 class mapping_module;
-
-namespace data {
-class keyframe;
-class bow_database;
-class map_database;
-} // namespace data
 
 class global_optimization_module {
 public:

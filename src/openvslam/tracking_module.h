@@ -2,7 +2,10 @@
 #define OPENVSLAM_TRACKING_MODULE_H
 
 #include "openvslam/type.h"
+#include "openvslam/data/bow_database.h"
 #include "openvslam/data/frame.h"
+#include "openvslam/data/map_database.h"
+#include "openvslam/feature/orb_extractor.h"
 #include "openvslam/module/initializer.h"
 #include "openvslam/module/relocalizer.h"
 #include "openvslam/module/keyframe_inserter.h"
@@ -18,15 +21,6 @@ namespace openvslam {
 class system;
 class mapping_module;
 class global_optimization_module;
-
-namespace data {
-class map_database;
-class bow_database;
-} // namespace data
-
-namespace feature {
-class orb_extractor;
-} // namespace feature
 
 // tracker state
 enum class tracker_state_t {

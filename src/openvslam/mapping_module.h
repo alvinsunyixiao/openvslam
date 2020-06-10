@@ -2,6 +2,8 @@
 #define OPENVSLAM_MAPPING_MODULE_H
 
 #include "openvslam/camera/base.h"
+#include "openvslam/data/keyframe.h"
+#include "openvslam/data/map_database.h"
 #include "openvslam/module/local_map_cleaner.h"
 #include "openvslam/optimize/local_bundle_adjuster.h"
 
@@ -13,15 +15,6 @@ namespace openvslam {
 
 class tracking_module;
 class global_optimization_module;
-
-namespace camera {
-class base;
-} // namespace camera
-
-namespace data {
-class keyframe;
-class map_database;
-} // namespace data
 
 class mapping_module {
 public:
