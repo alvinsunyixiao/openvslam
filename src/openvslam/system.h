@@ -3,6 +3,7 @@
 
 #include "openvslam/camera/base.h"
 #include "openvslam/config.h"
+#include "openvslam/data/bow_database.h"
 #include "openvslam/data/bow_vocabulary.h"
 #include "openvslam/data/camera_database.h"
 #include "openvslam/data/map_database.h"

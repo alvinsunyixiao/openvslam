@@ -1,16 +1,6 @@
 #include "openvslam/system.h"
-#include "openvslam/config.h"
-#include "openvslam/tracking_module.h"
-#include "openvslam/mapping_module.h"
-#include "openvslam/global_optimization_module.h"
-#include "openvslam/camera/base.h"
-#include "openvslam/data/camera_database.h"
-#include "openvslam/data/map_database.h"
-#include "openvslam/data/bow_database.h"
 #include "openvslam/io/trajectory_io.h"
 #include "openvslam/io/map_database_io.h"
-#include "openvslam/publish/map_publisher.h"
-#include "openvslam/publish/frame_publisher.h"
 
 #include <thread>
 
