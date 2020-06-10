@@ -26,10 +26,6 @@ mapping_module::~mapping_module() {
     spdlog::debug("DESTRUCT: mapping_module");
 }
 
-void mapping_module::set_tracking_module(tracking_module* tracker) {
-    tracker_ = tracker;
-}
-
 void mapping_module::set_global_optimization_module(global_optimization_module* global_optimizer) {
     global_optimizer_ = global_optimizer;
 }

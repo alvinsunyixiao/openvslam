@@ -13,7 +13,6 @@
 
 namespace openvslam {
 
-class tracking_module;
 class global_optimization_module;
 
 class mapping_module {
@@ -23,9 +22,6 @@ public:
 
     //! Destructor
     ~mapping_module();
-
-    //! Set the tracking module
-    void set_tracking_module(tracking_module* tracker);
 
     //! Set the global optimization module
     void set_global_optimization_module(global_optimization_module* global_optimizer);
@@ -169,8 +165,6 @@ private:
     //-----------------------------------------
     // modules
 
-    //! tracking module
-    tracking_module* tracker_ = nullptr;
     //! global optimization module
     global_optimization_module* global_optimizer_ = nullptr;
 

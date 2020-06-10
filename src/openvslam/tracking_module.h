@@ -6,6 +6,7 @@
 #include "openvslam/data/frame.h"
 #include "openvslam/data/map_database.h"
 #include "openvslam/feature/orb_extractor.h"
+#include "openvslam/mapping_module.h"
 #include "openvslam/module/initializer.h"
 #include "openvslam/module/relocalizer.h"
 #include "openvslam/module/keyframe_inserter.h"
@@ -17,10 +18,6 @@
 #include <opencv2/features2d/features2d.hpp>
 
 namespace openvslam {
-
-class system;
-class mapping_module;
-class global_optimization_module;
 
 // tracker state
 enum class tracker_state_t {
@@ -35,7 +32,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     //! Constructor
-    tracking_module(const std::shared_ptr<config>& cfg, system* system, data::map_database* map_db,
+    tracking_module(const std::shared_ptr<config>& cfg, data::map_database* map_db,
                     data::bow_vocabulary* bow_vocab, data::bow_database* bow_db);
 
     //! Destructor
@@ -43,9 +40,6 @@ public:
 
     //! Set the mapping module
     void set_mapping_module(mapping_module* mapper);
-
-    //! Set the global optimization module
-    void set_global_optimization_module(global_optimization_module* global_optimizer);
 
     //-----------------------------------------
     // interfaces
@@ -79,6 +73,12 @@ public:
 
     //! Reset the databases
     void reset();
+
+    //! Request to reset tracking
+    void request_reset();
+
+    //! Check if reset is requested or not
+    bool reset_is_requested() const;
 
     //-----------------------------------------
     // management for pause process
@@ -160,12 +160,8 @@ protected:
     //! Insert the new keyframe derived from the current frame
     void insert_new_keyframe();
 
-    //! system
-    system* system_ = nullptr;
     //! mapping module
     mapping_module* mapper_ = nullptr;
-    //! global optimization module
-    global_optimization_module* global_optimizer_ = nullptr;
 
     // ORB extractors
     //! ORB extractor for left/monocular image
@@ -232,6 +228,13 @@ protected:
 
     //! mapping module is enabled or not
     bool mapping_is_enabled_ = true;
+
+    //-----------------------------------------
+    // managemnet for reset process
+
+    mutable std::mutex mtx_reset_;
+
+    bool reset_is_requested_ = false;
 
     //-----------------------------------------
     // management for pause process

@@ -12,15 +12,16 @@
 #include "openvslam/util/image_converter.h"
 
 #include <chrono>
+#include <mutex>
 #include <unordered_map>
 
 #include <spdlog/spdlog.h>
 
 namespace openvslam {
 
-tracking_module::tracking_module(const std::shared_ptr<config>& cfg, system* system, data::map_database* map_db,
+tracking_module::tracking_module(const std::shared_ptr<config>& cfg, data::map_database* map_db,
                                  data::bow_vocabulary* bow_vocab, data::bow_database* bow_db)
-    : cfg_(cfg), camera_(cfg->camera_), system_(system), map_db_(map_db), bow_vocab_(bow_vocab), bow_db_(bow_db),
+    : cfg_(cfg), camera_(cfg->camera_), map_db_(map_db), bow_vocab_(bow_vocab), bow_db_(bow_db),
       initializer_(cfg->camera_->setup_type_, map_db, bow_db, cfg->yaml_node_),
       frame_tracker_(camera_, 10), relocalizer_(bow_db_), pose_optimizer_(),
       keyfrm_inserter_(cfg_->camera_->setup_type_, cfg_->true_depth_thr_, map_db, bow_db, 0, cfg_->camera_->fps_) {
@@ -50,10 +51,6 @@ tracking_module::~tracking_module() {
 void tracking_module::set_mapping_module(mapping_module* mapper) {
     mapper_ = mapper;
     keyfrm_inserter_.set_mapping_module(mapper);
-}
-
-void tracking_module::set_global_optimization_module(global_optimization_module* global_optimizer) {
-    global_optimizer_ = global_optimizer;
 }
 
 void tracking_module::set_mapping_module_status(const bool mapping_is_enabled) {
@@ -138,13 +135,11 @@ Mat44_t tracking_module::track_RGBD_image(const cv::Mat& img, const cv::Mat& dep
 }
 
 void tracking_module::reset() {
+    std::lock_guard<std::mutex> lock(mtx_reset_);
     spdlog::info("resetting system");
 
     initializer_.reset();
     keyfrm_inserter_.reset();
-
-    mapper_->request_reset();
-    global_optimizer_->request_reset();
 
     bow_db_->clear();
     map_db_->clear();
@@ -156,6 +151,18 @@ void tracking_module::reset() {
     last_reloc_frm_id_ = 0;
 
     tracking_state_ = tracker_state_t::NotInitialized;
+
+    reset_is_requested_ = false;
+}
+
+void tracking_module::request_reset() {
+    std::lock_guard<std::mutex> lock(mtx_reset_);
+    reset_is_requested_ = true;
+}
+
+bool tracking_module::reset_is_requested() const {
+    std::lock_guard<std::mutex> lock(mtx_reset_);
+    return reset_is_requested_;
 }
 
 void tracking_module::track() {
@@ -225,7 +232,7 @@ void tracking_module::track() {
         if (tracking_state_ == tracker_state_t::Lost
             && curr_frm_.id_ - initializer_.get_initial_frame_id() < camera_->fps_ * init_retry_thr) {
             spdlog::info("tracking lost within {} sec after initialization", init_retry_thr);
-            system_->request_reset();
+            request_reset();
             return;
         }
 
@@ -264,7 +271,7 @@ bool tracking_module::initialize() {
     // if map building was failed -> reset the map database
     if (initializer_.get_state() == module::initializer_state_t::Wrong) {
         // reset
-        system_->request_reset();
+        request_reset();
         return false;
     }
 

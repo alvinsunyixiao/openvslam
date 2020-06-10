@@ -181,11 +181,6 @@ protected:
     //! system running status flag
     std::atomic<bool> system_is_running_{false};
 
-    //! mutex for reset flag
-    mutable std::mutex mtx_reset_;
-    //! reset flag
-    bool reset_is_requested_ = false;
-
     //! mutex for terminate flag
     mutable std::mutex mtx_terminate_;
     //! terminate flag

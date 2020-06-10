@@ -64,7 +64,7 @@ system::system(const std::shared_ptr<config>& cfg, const std::string& vocab_file
     map_publisher_ = std::shared_ptr<publish::map_publisher>(new publish::map_publisher(cfg_, map_db_));
 
     // tracking module
-    tracker_ = new tracking_module(cfg_, this, map_db_, bow_vocab_, bow_db_);
+    tracker_ = new tracking_module(cfg_, map_db_, bow_vocab_, bow_db_);
     // mapping module
     mapper_ = new mapping_module(map_db_, camera_->setup_type_ == camera::setup_type_t::Monocular);
     // global optimization module
@@ -72,10 +72,7 @@ system::system(const std::shared_ptr<config>& cfg, const std::string& vocab_file
 
     // connect modules each other
     tracker_->set_mapping_module(mapper_);
-    tracker_->set_global_optimization_module(global_optimizer_);
-    mapper_->set_tracking_module(tracker_);
     mapper_->set_global_optimization_module(global_optimizer_);
-    global_optimizer_->set_tracking_module(tracker_);
     global_optimizer_->set_mapping_module(mapper_);
 }
 
@@ -280,13 +277,11 @@ void system::resume_tracker() {
 }
 
 void system::request_reset() {
-    std::lock_guard<std::mutex> lock(mtx_reset_);
-    reset_is_requested_ = true;
+    tracker_->request_reset();
 }
 
 bool system::reset_is_requested() const {
-    std::lock_guard<std::mutex> lock(mtx_reset_);
-    return reset_is_requested_;
+    return tracker_->reset_is_requested();
 }
 
 void system::request_terminate() {
@@ -300,10 +295,11 @@ bool system::terminate_is_requested() const {
 }
 
 void system::check_reset_request() {
-    std::lock_guard<std::mutex> lock(mtx_reset_);
-    if (reset_is_requested_) {
+    if (tracker_->reset_is_requested()) {
+        spdlog::debug("hey");
+        mapper_->request_reset();
+        global_optimizer_->request_reset();
         tracker_->reset();
-        reset_is_requested_ = false;
     }
 }
 
